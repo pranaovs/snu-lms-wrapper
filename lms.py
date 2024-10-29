@@ -133,13 +133,11 @@ class LMS:
         )
 
         # Get all sections in the page and save it inside a dict with its key being the title of the section
-        # HACK: The page is inconsistent for different users
+        # HACK: The page is inconsistent for different profiles
         sections: dict[str, str] = {}
         for section in soup.select("section.node_category"):
             sections[str(section.select_one("h3").text)] = section.select_one("div")  # type:ignore
 
-        # Page inconsistent. Some have email in email section, some have names.
-        # Check if email is in the email section
         try:
             userEmail = str(
                 sections["User details"].select_one("dd").select_one("a").text  # type:ignore
