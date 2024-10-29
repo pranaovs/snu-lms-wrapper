@@ -97,10 +97,17 @@ class LMS:
         """
 
         response = self.session.get("https://lms.snuchennai.edu.in/")
-
         soup = BeautifulSoup(response.text, "html.parser")
-        profileUrl = str(soup.select_one("a.dropdown-item:nth-child(3)"))
 
+        profileUrl: str = ""
+
+        # Get the dropdown button list and extract href from Profile button
+        for btn in soup.find_all("a", class_="dropdown-item"):
+            if "Profile" in btn.text:
+                profileUrl = btn.get("href")
+                break
+
+        # Set a profile variable containing logged in user details
         self.profile = self.getUserDetails(self.extractId(profileUrl))
         return self.profile
 
