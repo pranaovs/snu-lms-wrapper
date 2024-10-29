@@ -58,6 +58,11 @@ class LMS:
 
         response = self.session.post(self.LOGIN_URL, data=payload)
 
+        # If login successful, get self user details
+        if self.checkLogin(response):
+            return self.getSelfDetails()
+        else:
+            raise ValueError("Invalid login credentials")
 
     def checkLogin(self, response: requests.models.Response) -> bool:
         """
@@ -81,6 +86,24 @@ class LMS:
         # Raise exception if something unexpected happens
         else:
             return False
+
+    def getSelfDetails(self):
+        """
+        Get the user details of the logged in user
+        Expects a response object from the home page
+
+        Returns:
+            User: User object with the details of the logged in user
+        """
+
+        response = self.session.get("https://lms.snuchennai.edu.in/")
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        profileUrl = str(soup.select_one("a.dropdown-item:nth-child(3)"))
+
+        self.profile = self.getUserDetails(self.extractId(profileUrl))
+        return self.profile
+
     def getUserDetails(self, userid: int):
         """
         Get the user details of a user with the given userid
