@@ -2,12 +2,15 @@
 # Python wrapper for SNU LMS
 
 import re
+from dataclasses import dataclass
 from os import environ
+
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class LMS:
     # LMS Login url
@@ -78,6 +81,131 @@ class LMS:
         # Raise exception if something unexpected happens
         else:
             return False
+    def getUserDetails(self, userid: int):
+        """
+        Get the user details of a user with the given userid
+
+        Args:
+            userid (int): User id of the user
+
+        Returns:
+            User: User object with the details of the user
+        """
+
+        USER_DETAILS_URL = f"https://lms.snuchennai.edu.in/user/profile.php?id={userid}"
+        response = self.session.get(USER_DETAILS_URL.format(userid))
+
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Get user name
+        userName: str = str(
+            soup.select_one(".page-header-headings > h1:nth-child(1)").text  # type:ignore
+        )
+
+        # Get all sections in the page and save it inside a dict with its key being the title of the section
+        # HACK: The page is inconsistent for different users
+        sections: dict[str, str] = {}
+        for section in soup.select("section.node_category"):
+            sections[str(section.select_one("h3").text)] = section.select_one("div")  # type:ignore
+
+        # Page inconsistent. Some have email in email section, some have names.
+        # Check if email is in the email section
+        try:
+            userEmail = str(
+                sections["User details"].select_one("dd").select_one("a").text  # type:ignore
+            )
+        except AttributeError:
+            # Check if email is in the name section
+            try:
+                userEmail = str(soup.select_one(".no-overflow").text)  # type:ignore
+            except AttributeError:
+                userEmail = None
+
+        # Iterate through the list of courses and extract the course name and courseid
+        courseList: list[dict[str, str | int]] = []
+        for course in sections["Course details"].select("ul"):  # type:ignore
+            courseList.append(
+                {
+                    "name": str(course.select_one("a").text),  # type:ignore
+                    "courseid": int(
+                        self.extractCourseId(course.select_one("a").get("href"))  # type:ignore
+                    ),
+                }
+            )
+
+        return User(userid, userName, userEmail, courseList)
+
+    def extractId(self, url: str) -> int:
+        """
+        Extract the user id from the url of format: https://lms.snuchennai.edu.in/user/profile.php?id={userid}/
+
+        Args:
+            url (str): a url
+
+        Returns:
+            int: user id from the url
+
+        Raises:
+            ValueError: If id= part is not found in the url
+        """
+
+        match = re.search(r"[?&]id=(\d+)", url)
+        if match:
+            return int(match.group(1))
+        else:
+            raise ValueError("Invalid URL")
+
+    def extractCourseId(self, url: str) -> int:
+        """
+        Extract the user id from the url of format: https://lms.snuchennai.edu.in/user/profile.php?course={courseid}/
+
+        Args:
+            url (str): a url
+
+        Returns:
+            int: course id from the url
+
+        Raises:
+            ValueError: If course= part is not found in the url
+        """
+
+        match = re.search(r"[?&]course=(\d+)", url)
+        if match:
+            return int(match.group(1))
+        else:
+            raise ValueError("Invalid URL")
+
+
+@dataclass
+class User:
+    userid: int
+    name: str
+    email: str | None
+    courses: list[dict[str, str | int]]
+
+    def __init__(
+        self,
+        userid: int,
+        name: str,
+        email: str | None,
+        courses: list[dict[str, str | int]],
+    ) -> None:
+        """
+        Initialize a user object with the given details
+
+        Args:
+            userid (int): User id of the user
+            name (str): Name of the user
+            email (str | None): Email of the user
+            courses (list[int]): List of course ids the user is enrolled in
+        """
+
+        self.userid = userid
+        self.name = name
+        self.email = email
+        self.courses = courses
+
+
 if __name__ == "__main__":
     user1 = LMS()
     user1.login(str(environ.get("LMS_USERNAME")), str(environ.get("LMS_PASSWORD")))
