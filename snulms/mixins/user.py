@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
 
-from snulms.utils import extractId, extractCourseId
+from snulms.utils import extractId, extractCourseId, parseLoginActivity
 from snulms.types import User
+
+from datetime import datetime
 
 
 class UserMixin:
@@ -69,14 +71,33 @@ class UserMixin:
 
         # Iterate through the list of courses and extract the course name and courseid
         courseList: list[dict[str, str | int]] = []
-        for course in sections["Course details"].select("ul"):  # type:ignore
+
+        for course in sections["Course details"].find_all("a"):  # type:ignore
             courseList.append(
                 {
-                    "name": str(course.select_one("a").text),  # type:ignore
+                    "name": str(course.text),  # type:ignore
                     "courseid": int(
-                        extractCourseId(course.select_one("a").get("href"))  # type:ignore
+                        extractCourseId(course.get("href"))  # type:ignore
                     ),
                 }
             )
 
-        return User(userid, userName, userEmail, courseList)
+        # Get login activity
+        loginActivity: dict[str, datetime] = {}
+        for item in sections["Login activity"].find_all("dl"):  # type: ignore
+            loginActivity.update(
+                {
+                    item.select_one("dt").text: parseLoginActivity(
+                        str(item.select_one("dd").text)
+                    )
+                }
+            )
+
+        return User(
+            userid,
+            userName,
+            userEmail,
+            courseList,
+            loginActivity["First access to site"],
+            loginActivity["Last access to site"],
+        )
