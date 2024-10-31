@@ -40,9 +40,23 @@ class LoginMixin:
 
         # If login successful, get self user details
         if self.check_login(response):
+            self.sesskey = self.get_sesskey(response)
             return self.get_profile()
         else:
             raise ValueError("Invalid login credentials")
+
+    def get_sesskey(self, response: requests.Response) -> str:
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        LOGOUT_URL: str = ""
+
+        # Get the dropdown button list and extract href from Profile button
+        for btn in soup.find_all("a", class_="dropdown-item"):
+            if "Log out" in btn.text:
+                LOGOUT_URL = btn.get("href")
+                break
+
+        return extract_url_param("sesskey", LOGOUT_URL)
 
     def check_login(self, response: requests.models.Response) -> bool:
         """
