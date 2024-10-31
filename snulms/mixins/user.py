@@ -12,9 +12,23 @@ class UserMixin:
         Get the user details of the logged in user
         Expects a response object from the home page
 
+        Args:
+            refresh (bool, optional): force refreshes your details from the website.
+
         Returns:
             User: User object with the details of the logged in user
         """
+
+        if not refresh:
+            # Check if self.profile variable exists
+            try:
+                self.profile
+            # If AttributeError, do not do anything (proceed with fetching details)
+            except AttributeError:
+                pass
+            # If self.profile exists, return it
+            else:
+                return self.profile
 
         response = self.session.get("https://lms.snuchennai.edu.in/")
         soup = BeautifulSoup(response.text, "html.parser")
@@ -49,7 +63,7 @@ class UserMixin:
 
         # Get user name
         userName: str = str(
-            soup.select_one(".page-header-headings > h1:nth-child(1)").text  # type:ignore
+            soup.find("div", class_="page-header-headings").find("h1").text
         )
 
         # Get all sections in the page and save it inside a dict with its key being the title of the section
