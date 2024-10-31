@@ -1,9 +1,9 @@
+from datetime import datetime
+
 from bs4 import BeautifulSoup
 
-from snulms.utils import extractId, extractCourseId, parseLoginActivity
 from snulms.types import User
-
-from datetime import datetime
+from snulms.utils import extractCourseId, extractId, parseLoginActivity
 
 
 class UserMixin:
@@ -93,11 +93,18 @@ class UserMixin:
                 }
             )
 
+        # Get user profile photo
+
+        userPic = str(
+            soup.find("div", id="page").find(class_="userpicture").get("src")  # type:ignore
+        )
+
         return User(
-            userid,
-            userName,
-            userEmail,
-            courseList,
-            loginActivity["First access to site"],
-            loginActivity["Last access to site"],
+            userid=userid,
+            name=userName,
+            email=userEmail,
+            picture=userPic,
+            courses=courseList,
+            first_access=loginActivity["First access to site"],
+            last_access=loginActivity["Last access to site"],
         )
