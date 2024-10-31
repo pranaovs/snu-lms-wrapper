@@ -85,3 +85,12 @@ class LoginMixin:
         # Raise exception if something unexpected happens
         else:
             return False
+    def logout(self):
+        """
+        Logout from the LMS
+        """
+        # LMS Logout url
+        self.LOGOUT_URL = "https://lms.snuchennai.edu.in/login/logout.php?sesskey={}"
+
+        # Logout from the LMS
+        self.session.get(self.LOGOUT_URL.format(self.sesskey))
