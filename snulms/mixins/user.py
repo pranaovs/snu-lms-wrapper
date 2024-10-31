@@ -3,11 +3,11 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 from snulms.types import User
-from snulms.utils import extractCourseId, extractId, parseLoginActivity
+from snulms.utils import extract_url_param, parseLoginActivity
 
 
 class UserMixin:
-    def getSelfDetails(self):
+    def get_profile(self, refresh: bool = False):
         """
         Get the user details of the logged in user
         Expects a response object from the home page
@@ -28,10 +28,10 @@ class UserMixin:
                 break
 
         # Set a profile variable containing logged in user details
-        self.profile = self.getUserDetails(extractId(profileUrl))
+        self.profile = self.get_user(int(extract_url_param("id", profileUrl)))
         return self.profile
 
-    def getUserDetails(self, userid: int):
+    def get_user(self, userid: int):
         """
         Get the user details of a user with the given userid
 
@@ -77,7 +77,7 @@ class UserMixin:
                 {
                     "name": str(course.text),  # type:ignore
                     "courseid": int(
-                        extractCourseId(course.get("href"))  # type:ignore
+                        extract_url_param("course", course.get("href"))  # type:ignore
                     ),
                 }
             )

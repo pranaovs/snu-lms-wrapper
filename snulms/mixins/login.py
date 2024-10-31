@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from snulms.utils import extract_url_param
+
 
 class LoginMixin:
     def login(self, username: str, password: str):
@@ -37,12 +39,12 @@ class LoginMixin:
         response = self.session.post(self.LOGIN_URL, data=payload)
 
         # If login successful, get self user details
-        if self.checkLogin(response):
-            return self.getSelfDetails()
+        if self.check_login(response):
+            return self.get_profile()
         else:
             raise ValueError("Invalid login credentials")
 
-    def checkLogin(self, response: requests.models.Response) -> bool:
+    def check_login(self, response: requests.models.Response) -> bool:
         """
         Check if the login was successful or not
 
