@@ -45,8 +45,6 @@ class AuthMixin:
             SessionExpired: If session is expired
         """
 
-        self.LOGIN_URL = "https://lms.snuchennai.edu.in/login/index.php"
-
         # If credentials are not provided, stop the login process
         if (not (username and password)) and (not session):
             raise MissingCredentials(
@@ -56,20 +54,18 @@ class AuthMixin:
         # If session file is provided, attempt to restore session
         if session:
             self.restore_session(session)
-            # Check if session is valid
-            try:
-                self.check_session()
+
+            # If session is valid, return the logged in user profile
+            if self.check_session():
+                return self.get_profile()
             # If session is invalid
-            except SessionExpired:
+            else:
                 # If relogin is set to False, raise SessionExpired
                 if not relogin:
                     raise SessionExpired("Session expired, please login again")
-                # Else attept to login with username and password (continue with code flow)
+                # Else attept to login with username and password (continue with login flow)
                 else:
                     pass
-            # If session is valid, return the logged in user profile
-            else:
-                return self.get_profile()
 
         login_token = BeautifulSoup(
             self.session.get(LOGIN_URL).text, "html.parser"
