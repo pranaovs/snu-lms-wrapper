@@ -85,9 +85,13 @@ class AuthMixin:
 
         self.session.post(LOGIN_URL, data=payload)
 
+        # If credentials are valid
         if self.check_session():
-            return self.get_profile()
-
+            # If relogin is set to True, dump the session
+            if relogin and session:
+                self.dump_session(session)
+                # Return the logged in user profile
+                return self.get_profile()
         else:
             raise BadCredentials("Invalid login credentials")
 
