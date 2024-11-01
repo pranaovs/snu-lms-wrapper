@@ -44,6 +44,13 @@ class AuthMixin:
         Raises:
             BadCredentials: If login credentials are invalid
             SessionExpired: If session is expired
+
+        Examples:
+            >>> user = LMS()
+            >>> user.login(username="username", password="password", session="session", relogin=True)
+            >>> # If session is valid, it will be used.
+            >>> # If session dump is expired, it will login with username and password and dump the session to use in future (relogin=True)
+
         """
 
         # If credentials are not provided, stop the login process
