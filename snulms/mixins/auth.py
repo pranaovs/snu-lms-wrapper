@@ -11,6 +11,7 @@ from snulms.exceptions import (
     UnknownError,
 )
 from snulms.constants import BASE_URL, LOGIN_URL, LOGOUT_URL
+from snulms.types import User
 
 
 class AuthMixin:
@@ -27,7 +28,7 @@ class AuthMixin:
         password: str = "",
         session: str = "",
         relogin: bool = False,
-    ):
+    ) -> User:
         """
         Login to the LMS with the given credentials or the session file dump
 
