@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup
 from snulms.types import User
 from snulms.utils import extract_url_param, parseLoginActivity
 
+from snulms.constants import BASE_URL, USER_DETAILS_URL
+
 
 class UserMixin:
     def __init__(self):
@@ -34,7 +36,7 @@ class UserMixin:
             else:
                 return self.profile
 
-        response = self.session.get("https://lms.snuchennai.edu.in/")
+        response = self.session.get(BASE_URL)
         soup = BeautifulSoup(response.text, "html.parser")
 
         profileUrl: str = ""
@@ -60,7 +62,6 @@ class UserMixin:
             User: User object with the details of the user
         """
 
-        USER_DETAILS_URL = f"https://lms.snuchennai.edu.in/user/profile.php?id={userid}"
         response = self.session.get(USER_DETAILS_URL.format(userid))
 
         soup = BeautifulSoup(response.text, "html.parser")
