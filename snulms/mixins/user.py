@@ -7,6 +7,10 @@ from snulms.utils import extract_url_param, parseLoginActivity
 
 
 class UserMixin:
+    def __init__(self):
+        # Get the session object from the parent class
+        self.session = super().session  # type:ignore
+
     def get_profile(self, refresh: bool = False):
         """
         Get the user details of the logged in user

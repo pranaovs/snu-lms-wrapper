@@ -5,6 +5,11 @@ from snulms.utils import extract_url_param
 
 
 class LoginMixin:
+    def __init__(self):
+        # Get the session object from the parent class
+        self.session = super().session  # type:ignore
+        self.get_profile = super().get_profile  # type:ignore
+
     def login(self, username: str, password: str):
         """
         Login to the LMS with the given credentials
