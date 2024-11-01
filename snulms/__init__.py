@@ -1,9 +1,9 @@
-from snulms.mixins.login import LoginMixin
 from snulms.mixins.user import UserMixin
+from snulms.mixins.auth import AuthMixin
 import requests
 
 
-class LMS(LoginMixin, UserMixin):
+class LMS(AuthMixin, UserMixin):
     def __init__(self) -> None:
         """
         Initialize the LMS object with a session
