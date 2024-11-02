@@ -2,54 +2,15 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
+from snulms.constants import BASE_URL, USER_DETAILS_URL
 from snulms.types import User
 from snulms.utils import extract_url_param, parseLoginActivity
-
-from snulms.constants import BASE_URL, USER_DETAILS_URL
 
 
 class UserMixin:
     def __init__(self):
         # Get the session object from the parent class
         self.session = super().session  # type:ignore
-
-    def get_profile(self, refresh: bool = False):
-        """
-        Get the user details of the logged in user
-        Expects a response object from the home page
-
-        Args:
-            refresh (bool, optional): force refreshes your details from the website.
-
-        Returns:
-            User: User object with the details of the logged in user
-        """
-
-        if not refresh:
-            # Check if self.profile variable exists
-            try:
-                self.profile
-            # If AttributeError, do not do anything (proceed with fetching details)
-            except AttributeError:
-                pass
-            # If self.profile exists, return it
-            else:
-                return self.profile
-
-        response = self.session.get(BASE_URL)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        profileUrl: str = ""
-
-        # Get the dropdown button list and extract href from Profile button
-        for btn in soup.find_all("a", class_="dropdown-item"):
-            if "Profile" in btn.text:
-                profileUrl = btn.get("href")
-                break
-
-        # Set a profile variable containing logged in user details
-        self.profile = self.get_user(int(extract_url_param("id", profileUrl)))
-        return self.profile
 
     def get_user(self, userid: int):
         """
@@ -68,7 +29,7 @@ class UserMixin:
 
         # Get user name
         userName: str = str(
-            soup.find("div", class_="page-header-headings").find("h1").text
+            soup.find("div", class_="page-header-headings").find("h1").text  # type:ignore
         )
 
         # Get all sections in the page and save it inside a dict with its key being the title of the section
