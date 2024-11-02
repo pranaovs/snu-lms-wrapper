@@ -12,7 +12,7 @@ class UserMixin:
         # Get the session object from the parent class
         self.session = super().session  # type:ignore
 
-    def get_user(self, userid: int):
+    def get_user(self, userid: int) -> User:
         """
         Get the user details of a user with the given userid
 
@@ -50,15 +50,14 @@ class UserMixin:
                 userEmail = None
 
         # Iterate through the list of courses and extract the course name and courseid
-        courseList: list[dict[str, str | int]] = []
+        courseList: dict[int, str] = {}
 
         for course in sections["Course details"].find_all("a"):  # type:ignore
-            courseList.append(
+            courseList.update(
                 {
-                    "name": str(course.text),  # type:ignore
-                    "courseid": int(
+                    int(
                         extract_url_param("course", course.get("href"))  # type:ignore
-                    ),
+                    ): str(course.text),  # type:ignore
                 }
             )
 

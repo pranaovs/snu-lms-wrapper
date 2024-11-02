@@ -10,7 +10,7 @@ class User:
     name: str
     email: str | None
     picture: str | None
-    courses: list[dict[str, str | int]]
+    courses: dict[int, str]
     first_access: datetime
     last_access: datetime
 
@@ -20,7 +20,7 @@ class User:
         name: str,
         email: str | None,
         picture: str | None,
-        courses: list[dict[str, str | int]],
+        courses: dict[int, str],
         first_access: datetime,
         last_access: datetime,
     ) -> None:
@@ -32,7 +32,7 @@ class User:
             name (str): Name of the user
             email (str | None): Email of the user
             picture (str | None): URL of the user's profile picture
-            courses (list[int]): List of course ids the user is enrolled in
+            courses (dict[int, str]): Courses the user is enrolled in. Key: Course ID, Value: Course Name
             first_access (datetime): First access to the site by the user
             last_access (datetime): Last access to the site by the user
         """
