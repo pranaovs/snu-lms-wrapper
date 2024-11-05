@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 from snulms.constants import BASE_URL, USER_DETAILS_URL
 from snulms.types import User
-from snulms.utils import extract_url_param, parseLoginActivity
+from snulms.utils import extract_url_param, parse_login_activity
 
 
 class UserMixin:
@@ -66,7 +66,7 @@ class UserMixin:
         for item in sections["Login activity"].find_all("dl"):  # type: ignore
             loginActivity.update(
                 {
-                    item.select_one("dt").text: parseLoginActivity(
+                    item.select_one("dt").text: parse_login_activity(
                         str(item.select_one("dd").text)
                     )
                 }

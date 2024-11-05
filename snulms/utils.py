@@ -73,7 +73,7 @@ def extract_url_param(param: str, url: str) -> str:
         raise ValueError(f"Parameter {param} not found in the url")
 
 
-def parseLoginActivity(input: str) -> datetime:
+def parse_login_activity(input: str) -> datetime:
     """
     Convert the login date and time recieved from from the webpage to datetime format
 
